@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: interesting-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: interesting-app
+  template:
+    metadata:
+      labels:
+        app: interesting-app
+    spec:
+      containers:
+      - name: web-app
+        image: anandmaha/interesting-app:latest
+        ports:
+        - containerPort: 5000
+        env:
+        - name: REDIS_HOST
+          value: "interesting-redis"
+        - name: DEBUG_INFO
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DEBUG_INFO
+        - name: FEATURE_FLAG
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: FEATURE_FLAG
+        - name: SECRET_MESSAGE
+          valueFrom:
+            secretKeyRef:
+              name: app-secret
+              key: SECRET_MESSAGE
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      - name: redis
+        image: redis:alpine
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"

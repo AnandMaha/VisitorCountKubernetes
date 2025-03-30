@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  DEBUG_INFO: "This is debug information from ConfigMap"
+  FEATURE_FLAG: "on"
